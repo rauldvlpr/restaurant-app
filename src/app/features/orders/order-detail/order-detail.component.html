@@ -1,0 +1,112 @@
+<div class="order-detail-container">
+  <div class="page-header">
+    <h1>Detalle de Comanda #{{order?.id}}</h1>
+    <div class="header-actions">
+      <button class="back-btn" routerLink="/orders">Volver a la lista</button>
+    </div>
+  </div>
+  
+  <div class="order-card" *ngIf="order">
+    <div class="order-status-bar">
+      <div class="status-indicator">
+        <span class="status-label">Estado:</span>
+        <span class="status-badge" [ngClass]="order.status">{{getStatusText(order.status)}}</span>
+      </div>
+      <div class="order-actions" *ngIf="order.status !== 'paid'">
+        <button class="action-btn update-status" (click)="updateOrderStatus()" [disabled]="isProcessing">
+          <span *ngIf="order.status === 'pending'">Iniciar preparación</span>
+          <span *ngIf="order.status === 'in-progress'">Marcar como completada</span>
+          <span *ngIf="order.status === 'completed'">Marcar como pagada</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="order-details">
+      <div class="details-column">
+        <div class="detail-row">
+          <span class="label">Mesa:</span>
+          <span class="value">{{order.tableNumber}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Mesero:</span>
+          <span class="value">{{order.waiter?.firstName}} {{order.waiter?.lastName}}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Fecha:</span>
+          <span class="value">{{order.createdAt | date:'medium'}}</span>
+        </div>
+      </div>
+      <div class="details-column">
+        <div class="detail-row">
+          <span class="label">Total:</span>
+          <span class="value total">${{order.total.toFixed(2)}}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="order-items">
+      <h2>Productos en la comanda</h2>
+      
+      <div class="items-table">
+        <div class="table-header">
+          <div class="col product-col">Producto</div>
+          <div class="col quantity-col">Cantidad</div>
+          <div class="col price-col">Precio Unitario</div>
+          <div class="col total-col">Total</div>
+          <div class="col actions-col" *ngIf="order.status === 'pending'">Acciones</div>
+        </div>
+        
+        <div class="table-row" *ngFor="let item of order.items; let i = index">
+          <div class="col product-col">
+            <div class="product-name">{{item.product?.name}}</div>
+            <div class="product-notes" *ngIf="item.notes">{{item.notes}}</div>
+          </div>
+          <div class="col quantity-col">
+            <div class="quantity-controls" *ngIf="order.status === 'pending'">
+              <button class="qty-btn" (click)="decreaseQuantity(i)">-</button>
+              <span class="quantity">{{item.quantity}}</span>
+              <button class="qty-btn" (click)="increaseQuantity(i)">+</button>
+            </div>
+            <span *ngIf="order.status !== 'pending'">{{item.quantity}}</span>
+          </div>
+          <div class="col price-col">${{item.price.toFixed(2)}}</div>
+          <div class="col total-col">${{(item.price * item.quantity).toFixed(2)}}</div>
+          <div class="col actions-col" *ngIf="order.status === 'pending'">
+            <button class="remove-btn" (click)="removeItem(i)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="items-summary">
+        <div class="summary-row">
+          <span class="label">Subtotal:</span>
+          <span class="value">${{calculateSubtotal().toFixed(2)}}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Total:</span>
+          <span class="value grand-total">${{order.total.toFixed(2)}}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="order-actions-bottom" *ngIf="order.status === 'pending'">
+      <button class="action-btn add-product" routerLink="/orders/edit/{{order.id}}">
+        Agregar más productos
+      </button>
+      <button class="action-btn update-order" (click)="updateOrder()" [disabled]="isProcessing">
+        Actualizar comanda
+      </button>
+    </div>
+    
+    <div class="order-footer" *ngIf="order.status === 'completed'">
+      <button class="action-btn print-bill" (click)="printBill()">
+        Imprimir cuenta
+      </button>
+    </div>
+  </div>
+  
+  <div class="loading-overlay" *ngIf="!order">
+    <div class="loader"></div>
+    <p>Cargando detalles de la comanda...</p>
+  </div>
+</div> 

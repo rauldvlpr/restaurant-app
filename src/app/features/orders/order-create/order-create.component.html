@@ -1,0 +1,101 @@
+<div class="create-order-container">
+  <div class="page-header">
+    <h1>Nueva Comanda</h1>
+    <button class="back-btn" routerLink="/orders">Volver a la lista</button>
+  </div>
+  
+  <div class="order-form-container">
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+      <div class="order-info-section">
+        <h2>Información de la Comanda</h2>
+        
+        <div class="form-group">
+          <label for="tableNumber">Número de Mesa</label>
+          <input type="number" id="tableNumber" formControlName="tableNumber" min="1">
+          <div class="error-message" *ngIf="orderForm.get('tableNumber')?.invalid && orderForm.get('tableNumber')?.touched">
+            El número de mesa es obligatorio
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="waiterId">Mesero</label>
+          <select id="waiterId" formControlName="waiterId">
+            <option value="">Seleccionar mesero</option>
+            <option *ngFor="let waiter of waiters" [value]="waiter.id">
+              {{waiter.firstName}} {{waiter.lastName}}
+            </option>
+          </select>
+          <div class="error-message" *ngIf="orderForm.get('waiterId')?.invalid && orderForm.get('waiterId')?.touched">
+            El mesero es obligatorio
+          </div>
+        </div>
+      </div>
+      
+      <div class="product-selection">
+        <h2>Productos</h2>
+        
+        <div class="category-selector">
+          <div class="category-btn" *ngFor="let category of categories" 
+               [class.active]="selectedCategory?.id === category.id"
+               (click)="selectCategory(category)">
+            {{category.name}}
+          </div>
+        </div>
+        
+        <div class="products-grid">
+          <div class="product-card" *ngFor="let product of filteredProducts" (click)="addItemToOrder(product)">
+            <div class="product-img" *ngIf="product.imageUrl">
+              <img [src]="product.imageUrl" alt="{{product.name}}">
+            </div>
+            <div class="product-info">
+              <h3>{{product.name}}</h3>
+              <p>{{product.description}}</p>
+              <span class="price">${{product.price.toFixed(2)}}</span>
+            </div>
+          </div>
+          
+          <div class="no-products" *ngIf="filteredProducts.length === 0">
+            <p>No hay productos disponibles en esta categoría.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="order-summary">
+        <h2>Resumen de la Orden</h2>
+        
+        <div class="items-list">
+          <div class="item-row" *ngFor="let item of orderItems; let i = index">
+            <div class="item-details">
+              <span class="item-name">{{item.product?.name}}</span>
+              <div class="item-controls">
+                <button type="button" class="quantity-btn" (click)="decreaseQuantity(i)">-</button>
+                <span class="quantity">{{item.quantity}}</span>
+                <button type="button" class="quantity-btn" (click)="increaseQuantity(i)">+</button>
+              </div>
+              <span class="item-price">${{(item.price * item.quantity).toFixed(2)}}</span>
+            </div>
+            <div class="item-actions">
+              <button type="button" class="remove-btn" (click)="removeItem(i)">×</button>
+            </div>
+          </div>
+          
+          <div class="no-items" *ngIf="orderItems.length === 0">
+            <p>No hay productos agregados a la orden.</p>
+          </div>
+        </div>
+        
+        <div class="order-total" *ngIf="orderItems.length > 0">
+          <span>Total:</span>
+          <span class="total-amount">${{calculateTotal().toFixed(2)}}</span>
+        </div>
+        
+        <div class="order-actions">
+          <button type="button" class="cancel-btn" routerLink="/orders">Cancelar</button>
+          <button type="submit" class="submit-btn" [disabled]="orderForm.invalid || orderItems.length === 0">
+            Crear Comanda
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div> 

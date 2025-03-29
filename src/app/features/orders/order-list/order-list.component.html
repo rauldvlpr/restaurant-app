@@ -1,0 +1,57 @@
+<div class="orders-container">
+  <div class="page-header">
+    <h1>Comandas</h1>
+    <button class="create-btn" routerLink="/orders/create">Nueva Comanda</button>
+  </div>
+  
+  <div class="filters">
+    <div class="search">
+      <input type="text" placeholder="Buscar por mesa o mesero...">
+    </div>
+    <div class="status-filter">
+      <select>
+        <option value="">Todos los estados</option>
+        <option value="pending">Pendientes</option>
+        <option value="in-progress">En progreso</option>
+        <option value="completed">Completadas</option>
+        <option value="paid">Pagadas</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="orders-list">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="order-header">
+        <span class="table-number">Mesa {{order.tableNumber}}</span>
+        <span class="status" [ngClass]="order.status">{{getStatusText(order.status)}}</span>
+      </div>
+      <div class="order-info">
+        <div class="info-row">
+          <span class="label">Mesero:</span>
+          <span class="value">{{order.waiter?.firstName}} {{order.waiter?.lastName}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Productos:</span>
+          <span class="value">{{order.items.length}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total:</span>
+          <span class="value strong">${{order.total.toFixed(2)}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Fecha:</span>
+          <span class="value">{{order.createdAt | date:'medium'}}</span>
+        </div>
+      </div>
+      <div class="order-actions">
+        <button class="btn view" [routerLink]="['/orders', order.id]">Ver Detalles</button>
+        <button class="btn update" *ngIf="order.status !== 'paid'">Actualizar</button>
+        <button class="btn pay" *ngIf="order.status === 'completed'">Cobrar</button>
+      </div>
+    </div>
+    
+    <div class="no-orders" *ngIf="orders.length === 0">
+      <p>No hay comandas disponibles.</p>
+    </div>
+  </div>
+</div> 
